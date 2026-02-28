@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TaskService {
+
   private final TaskRepository repository;
   private final PrototypeScopedBean prototypeBean;
   private final Map<Long, Task> taskCache = new HashMap<>();

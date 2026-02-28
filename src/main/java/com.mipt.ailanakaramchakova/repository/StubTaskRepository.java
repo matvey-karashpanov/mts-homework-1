@@ -10,24 +10,25 @@ import java.util.Optional;
  * Created manually via @Bean in AppConfig.
  */
 public class StubTaskRepository implements TaskRepository {
-    @Override
-    public List<Task> findAll() {
-        List<Task> tasks = new ArrayList<>();
-        tasks.add(new Task(1L, "Stub Task", "Description", false));
-        return tasks;
-    }
 
-    @Override
-    public Optional<Task> findById(Long id) {
-        return Optional.of(new Task(1L, "Stub Task", "Description", false));
-    }
+  @Override
+  public List<Task> findAll() {
+    List<Task> tasks = new ArrayList<>();
+    tasks.add(new Task(1L, "Stub Task", "Description", false));
+    return tasks;
+  }
 
-    @Override
-    public Task save(Task task) {
-        return task;
-    }
+  @Override
+  public Optional<Task> findById(Long id) {
+    return Optional.of(new Task(1L, "Stub Task", "Description", false));
+  }
 
-    @Override
-    public void deleteById(Long id) {
-    }
+  @Override
+  public Task save(Task task) {
+    return task;
+  }
+
+  @Override
+  public void deleteById(Long id) {
+  }
 }

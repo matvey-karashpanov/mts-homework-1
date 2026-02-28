@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
-    /**
-     * Creates a stub repository bean.
-     */
-    @Bean
-    public TaskRepository stubTaskRepository() {
-        return new StubTaskRepository();
-    }
+  /**
+   * Creates a stub repository bean.
+   */
+  @Bean
+  public TaskRepository stubTaskRepository() {
+    return new StubTaskRepository();
+  }
 }

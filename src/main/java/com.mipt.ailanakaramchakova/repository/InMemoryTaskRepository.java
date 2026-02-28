@@ -16,30 +16,31 @@ import java.util.concurrent.ConcurrentHashMap;
 @Primary
 @Repository
 public class InMemoryTaskRepository implements TaskRepository {
-    private final Map<Long, Task> storage = new ConcurrentHashMap<>();
-    private Long currentId = 1L;
 
-    @Override
-    public List<Task> findAll() {
-        return new ArrayList<>(storage.values());
-    }
+  private final Map<Long, Task> storage = new ConcurrentHashMap<>();
+  private Long currentId = 1L;
 
-    @Override
-    public Optional<Task> findById(Long id) {
-        return Optional.ofNullable(storage.get(id));
-    }
+  @Override
+  public List<Task> findAll() {
+    return new ArrayList<>(storage.values());
+  }
 
-    @Override
-    public Task save(Task task) {
-        if (task.getId() == null) {
-            task.setId(currentId++);
-        }
-        storage.put(task.getId(), task);
-        return task;
-    }
+  @Override
+  public Optional<Task> findById(Long id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    @Override
-    public void deleteById(Long id) {
-        storage.remove(id);
+  @Override
+  public Task save(Task task) {
+    if (task.getId() == null) {
+      task.setId(currentId++);
     }
+    storage.put(task.getId(), task);
+    return task;
+  }
+
+  @Override
+  public void deleteById(Long id) {
+    storage.remove(id);
+  }
 }

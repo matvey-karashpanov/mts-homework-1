@@ -11,6 +11,7 @@ import java.util.UUID;
 @Component
 @Scope("prototype")
 public class PrototypeScopedBean {
+
   private final String uuid = UUID.randomUUID().toString();
 
   public String getUuid() {

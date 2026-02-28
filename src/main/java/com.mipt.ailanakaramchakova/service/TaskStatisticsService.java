@@ -10,17 +10,18 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TaskStatisticsService {
-    private final TaskRepository primaryRepository;
-    private final TaskRepository stubRepository;
 
-    public TaskStatisticsService(TaskRepository primaryRepository,
-        @Qualifier("stubTaskRepository") TaskRepository stubRepository) {
-        this.primaryRepository = primaryRepository;
-        this.stubRepository = stubRepository;
-    }
+  private final TaskRepository primaryRepository;
+  private final TaskRepository stubRepository;
 
-    public void compareRepositories() {
-        System.out.println("Primary count: " + primaryRepository.findAll().size());
-        System.out.println("Stub count: " + stubRepository.findAll().size());
-    }
+  public TaskStatisticsService(TaskRepository primaryRepository,
+    @Qualifier("stubTaskRepository") TaskRepository stubRepository) {
+    this.primaryRepository = primaryRepository;
+    this.stubRepository = stubRepository;
+  }
+
+  public void compareRepositories() {
+    System.out.println("Primary count: " + primaryRepository.findAll().size());
+    System.out.println("Stub count: " + stubRepository.findAll().size());
+  }
 }

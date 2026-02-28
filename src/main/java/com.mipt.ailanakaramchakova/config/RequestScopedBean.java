@@ -13,6 +13,7 @@ import java.util.UUID;
 @Component
 @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class RequestScopedBean {
+
   private final String requestId = UUID.randomUUID().toString();
   private final Instant startTime = Instant.now();
 

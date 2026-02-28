@@ -97,7 +97,8 @@ public class TaskControllerTest {
 
     ResponseEntity<String> response = restTemplate.exchange(
       "/api/tasks", HttpMethod.POST, entity, String.class);
-    assertTrue(response.getStatusCode().is4xxClientError() || response.getStatusCode().is5xxServerError());
+    assertTrue(
+      response.getStatusCode().is4xxClientError() || response.getStatusCode().is5xxServerError());
   }
 
   @Test

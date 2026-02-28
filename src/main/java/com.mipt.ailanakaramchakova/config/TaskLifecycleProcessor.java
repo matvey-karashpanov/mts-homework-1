@@ -11,21 +11,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskLifecycleProcessor implements BeanPostProcessor {
 
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (bean.getClass().getName().contains("TaskService") ||
-            bean.getClass().getName().contains("TaskRepository")) {
-            System.out.println("[LIFECYCLE] Creating bean: " + beanName);
-        }
-        return bean;
+  @Override
+  public Object postProcessBeforeInitialization(Object bean, String beanName)
+    throws BeansException {
+    if (bean.getClass().getName().contains("TaskService") ||
+      bean.getClass().getName().contains("TaskRepository")) {
+      System.out.println("[LIFECYCLE] Creating bean: " + beanName);
     }
+    return bean;
+  }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (bean.getClass().getName().contains("TaskService") ||
-            bean.getClass().getName().contains("TaskRepository")) {
-            System.out.println("[LIFECYCLE] Initialized bean: " + beanName);
-        }
-        return bean;
+  @Override
+  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    if (bean.getClass().getName().contains("TaskService") ||
+      bean.getClass().getName().contains("TaskRepository")) {
+      System.out.println("[LIFECYCLE] Initialized bean: " + beanName);
     }
+    return bean;
+  }
 }
