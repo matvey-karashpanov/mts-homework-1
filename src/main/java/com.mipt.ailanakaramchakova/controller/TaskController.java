@@ -1,5 +1,6 @@
 package com.mipt.ailanakaramchakova.controller;
 
+import com.mipt.ailanakaramchakova.config.RequestScopedBean;
 import com.mipt.ailanakaramchakova.model.Task;
 import com.mipt.ailanakaramchakova.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,39 +22,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
-    private final TaskService taskService;
+  private final TaskService taskService;
+  private final RequestScopedBean requestScopedBean;
 
-    @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+  @Autowired
+  public TaskController(TaskService taskService, RequestScopedBean requestScopedBean) {
+    this.taskService = taskService;
+    this.requestScopedBean = requestScopedBean;
+  }
 
-    @GetMapping
-    public ResponseEntity<List<Task>> getAll() {
-        return ResponseEntity.ok(taskService.findAll());
-    }
+  @GetMapping
+  public ResponseEntity<List<Task>> getAll() {
+    return ResponseEntity.ok(taskService.findAll());
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Task> getById(@PathVariable Long id) {
-        return taskService.findById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<Task> getById(@PathVariable Long id) {
+    return taskService.findById(id)
+      .map(ResponseEntity::ok)
+      .orElse(ResponseEntity.notFound().build());
+  }
 
-    @PostMapping
-    public ResponseEntity<Task> create(@RequestBody Task task) {
-        return ResponseEntity.ok(taskService.save(task));
-    }
+  @PostMapping
+  public ResponseEntity<Task> create(@RequestBody Task task) {
+    return ResponseEntity.ok(taskService.save(task));
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody Task task) {
-        task.setId(id);
-        return ResponseEntity.ok(taskService.save(task));
-    }
+  @PutMapping("/{id}")
+  public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody Task task) {
+    task.setId(id);
+    return ResponseEntity.ok(taskService.save(task));
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        taskService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    taskService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
 }
