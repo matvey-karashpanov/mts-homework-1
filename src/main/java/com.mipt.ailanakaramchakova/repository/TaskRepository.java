@@ -15,5 +15,5 @@ public interface TaskRepository {
 
   Task save(Task task);
 
-  void deleteById(Long id);
+  boolean deleteById(Long id);
 }

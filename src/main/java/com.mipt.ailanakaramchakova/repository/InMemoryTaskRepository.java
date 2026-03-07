@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryTaskRepository implements TaskRepository {
 
   private final Map<Long, Task> storage = new ConcurrentHashMap<>();
-  private Long currentId = 1L;
+  private final AtomicLong currentId = new AtomicLong(1L);
 
   @Override
   public List<Task> findAll() {
@@ -33,14 +34,14 @@ public class InMemoryTaskRepository implements TaskRepository {
   @Override
   public Task save(Task task) {
     if (task.getId() == null) {
-      task.setId(currentId++);
+      task.setId(currentId.getAndIncrement());
     }
     storage.put(task.getId(), task);
     return task;
   }
 
   @Override
-  public void deleteById(Long id) {
-    storage.remove(id);
+  public boolean deleteById(Long id) {
+    return storage.remove(id) != null;
   }
 }

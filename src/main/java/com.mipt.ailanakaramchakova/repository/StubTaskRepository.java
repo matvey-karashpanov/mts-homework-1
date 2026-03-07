@@ -29,6 +29,7 @@ public class StubTaskRepository implements TaskRepository {
   }
 
   @Override
-  public void deleteById(Long id) {
+  public boolean deleteById(Long id) {
+    return true;
   }
 }
