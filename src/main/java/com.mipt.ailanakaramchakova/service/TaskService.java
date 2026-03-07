@@ -3,12 +3,14 @@ package com.mipt.ailanakaramchakova.service;
 import com.mipt.ailanakaramchakova.config.PrototypeScopedBean;
 import com.mipt.ailanakaramchakova.model.Task;
 import com.mipt.ailanakaramchakova.repository.TaskRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TaskService {
+
+  private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
   private final TaskRepository repository;
   private final PrototypeScopedBean prototypeBean;
@@ -42,13 +46,13 @@ public class TaskService {
     taskCache.put(task1.getId(), task1);
     taskCache.put(task2.getId(), task2);
 
-    System.out.println("Cache initialized for " + appName + " v" + appVersion);
-    System.out.println("Prototype ID: " + prototypeBean.getUuid());
+    logger.info("Cache initialized for {} v{}", appName, appVersion);
+    logger.info("Prototype ID: {}", prototypeBean.getUuid());
   }
 
   @PreDestroy
   public void destroy() {
-    System.out.println("Destroying service. Cache size: " + taskCache.size());
+    logger.info("Destroying service. Cache size: {}", taskCache.size());
   }
 
   public List<Task> findAll() {

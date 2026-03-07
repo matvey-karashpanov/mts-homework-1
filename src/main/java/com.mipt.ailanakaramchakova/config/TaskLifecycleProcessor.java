@@ -1,5 +1,7 @@
 package com.mipt.ailanakaramchakova.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -11,12 +13,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskLifecycleProcessor implements BeanPostProcessor {
 
+  private static final Logger logger = LoggerFactory.getLogger(TaskLifecycleProcessor.class);
+
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName)
     throws BeansException {
     if (bean.getClass().getName().contains("TaskService") ||
       bean.getClass().getName().contains("TaskRepository")) {
-      System.out.println("[LIFECYCLE] Creating bean: " + beanName);
+      logger.info("[LIFECYCLE] Creating bean: {}", beanName);
     }
     return bean;
   }
@@ -25,7 +29,7 @@ public class TaskLifecycleProcessor implements BeanPostProcessor {
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     if (bean.getClass().getName().contains("TaskService") ||
       bean.getClass().getName().contains("TaskRepository")) {
-      System.out.println("[LIFECYCLE] Initialized bean: " + beanName);
+      logger.info("[LIFECYCLE] Initialized bean: {}", beanName);
     }
     return bean;
   }
