@@ -1,8 +1,13 @@
 package com.mipt.ailanakaramchakova.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Represents a task in the todo list.
- * Contains id, title, description and completed status.
+ * Contains id, title, description, completed status, dates, priority and tags.
  */
 public class Task {
 
@@ -10,8 +15,14 @@ public class Task {
   private String title;
   private String description;
   private boolean completed;
+  private LocalDateTime createdAt;
+  private LocalDate dueDate;
+  private Priority priority;
+  private Set<String> tags;
 
   public Task() {
+    this.tags = new HashSet<>();
+    this.tags = new HashSet<>();
   }
 
   public Task(Long id, String title, String description, boolean completed) {
@@ -19,6 +30,20 @@ public class Task {
     this.title = title;
     this.description = description;
     this.completed = completed;
+    this.tags = new HashSet<>();
+    this.createdAt = LocalDateTime.now();
+  }
+
+  public Task(Long id, String title, String description, boolean completed,
+    LocalDateTime createdAt, LocalDate dueDate, Priority priority, Set<String> tags) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.completed = completed;
+    this.createdAt = createdAt;
+    this.dueDate = dueDate;
+    this.priority = priority;
+    this.tags = tags != null ? tags : new HashSet<>();
   }
 
   public Long getId() {
@@ -53,6 +78,38 @@ public class Task {
     this.completed = completed;
   }
 
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public LocalDate getDueDate() {
+    return dueDate;
+  }
+
+  public void setDueDate(LocalDate dueDate) {
+    this.dueDate = dueDate;
+  }
+
+  public Priority getPriority() {
+    return priority;
+  }
+
+  public void setPriority(Priority priority) {
+    this.priority = priority;
+  }
+
+  public Set<String> getTags() {
+    return tags;
+  }
+
+  public void setTags(Set<String> tags) {
+    this.tags = tags;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -68,7 +125,7 @@ public class Task {
     if (id == null || task.id == null) {
       return false;
     }
-    return completed == task.completed && id.equals(task.id);
+    return id.equals(task.id);
   }
 
   @Override
@@ -81,8 +138,8 @@ public class Task {
     return "Task{" +
       "id=" + id +
       ", title='" + title + '\'' +
-      ", description='" + description + '\'' +
       ", completed=" + completed +
+      ", priority=" + priority +
       '}';
   }
 }
