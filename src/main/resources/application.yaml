@@ -3,11 +3,17 @@ server:
 
 app:
   name: "Todo MVP"
-  version: "1.0.0"
+  version: "2.0.0"
+  api-version: "2.0.0"
 
 spring:
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 25MB
+      enabled: true
 
 ---
 spring:
@@ -17,6 +23,7 @@ spring:
 logging:
   level:
     root: DEBUG
+    com.mipt.ailanakaramchakova: DEBUG
 
 ---
 spring:
@@ -26,3 +33,11 @@ spring:
 logging:
   level:
     root: INFO
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
