@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Main implementation of TaskRepository using in-memory storage.
- * Marked as Primary to be used by default.
+ * Primary in-memory implementation of TaskRepository.
  */
 @Primary
 @Repository
@@ -35,6 +35,7 @@ public class InMemoryTaskRepository implements TaskRepository {
   public Task save(Task task) {
     if (task.getId() == null) {
       task.setId(currentId.getAndIncrement());
+      task.setCreatedAt(LocalDateTime.now());
     }
     storage.put(task.getId(), task);
     return task;

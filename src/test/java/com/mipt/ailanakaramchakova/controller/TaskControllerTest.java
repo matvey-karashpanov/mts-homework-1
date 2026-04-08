@@ -1,10 +1,16 @@
 package com.mipt.ailanakaramchakova.controller;
 
-import com.mipt.ailanakaramchakova.dto.TaskDto;
+import com.mipt.ailanakaramchakova.dto.ErrorResponse;
+import com.mipt.ailanakaramchakova.dto.TaskCreateDto;
+import com.mipt.ailanakaramchakova.dto.TaskResponseDto;
+import com.mipt.ailanakaramchakova.dto.TaskUpdateDto;
+import com.mipt.ailanakaramchakova.exception.TaskNotFoundException;
+import com.mipt.ailanakaramchakova.model.Priority;
 import com.mipt.ailanakaramchakova.service.TaskService;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,12 +22,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -43,8 +50,11 @@ public class TaskControllerTest {
 
   @Test
   public void testGetAll_Positive() {
-    List<TaskDto> tasks = Arrays.asList(new TaskDto(1L, "Test", "Desc", false));
-    when(taskService.findAll()).thenReturn(Arrays.asList(new com.mipt.ailanakaramchakova.model.Task(1L, "Test", "Desc", false)));
+    List<TaskResponseDto> tasks = Arrays.asList(
+      new TaskResponseDto(1L, "Test", "Desc", false,
+        LocalDateTime.now(), null, Priority.MEDIUM, new HashSet<>())
+    );
+    when(taskService.findAll()).thenReturn(tasks);
 
     ResponseEntity<List> response = restTemplate.getForEntity("/api/tasks", List.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -61,31 +71,44 @@ public class TaskControllerTest {
 
   @Test
   public void testGetById_Positive() {
-    TaskDto taskDto = new TaskDto(1L, "Test", "Desc", false);
-    when(taskService.findById(1L)).thenReturn(Optional.of(new com.mipt.ailanakaramchakova.model.Task(1L, "Test", "Desc", false)));
+    TaskResponseDto taskDto = new TaskResponseDto(1L, "Test", "Desc", false,
+      LocalDateTime.now(), null, Priority.MEDIUM, new HashSet<>());
+    when(taskService.findById(1L)).thenReturn(taskDto);
 
-    ResponseEntity<TaskDto> response = restTemplate.getForEntity("/api/tasks/1", TaskDto.class);
+    ResponseEntity<TaskResponseDto> response =
+      restTemplate.getForEntity("/api/tasks/1", TaskResponseDto.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(1L, response.getBody().getId());
   }
 
   @Test
   public void testGetById_Negative() {
-    when(taskService.findById(99L)).thenReturn(Optional.empty());
+    when(taskService.findById(99L)).thenThrow(new TaskNotFoundException(99L));
 
-    ResponseEntity<TaskDto> response = restTemplate.getForEntity("/api/tasks/99", TaskDto.class);
+    ResponseEntity<ErrorResponse> response =
+      restTemplate.getForEntity("/api/tasks/99", ErrorResponse.class);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertNull(response.getBody());
+    assertNotNull(response.getBody());
+    assertEquals("NOT_FOUND", response.getBody().getError());
+    assertTrue(response.getBody().getMessage().contains("99"));
   }
 
   @Test
   public void testCreate_Positive() {
-    TaskDto taskDto = new TaskDto(null, "New", "Desc", false);
-    when(taskService.save(any())).thenReturn(new com.mipt.ailanakaramchakova.model.Task(1L, "New", "Desc", false));
+    TaskCreateDto createDto = new TaskCreateDto();
+    createDto.setTitle("New Task");
+    createDto.setDescription("Description");
+    createDto.setPriority(Priority.HIGH);
+    createDto.setTags(new HashSet<>());
 
-    ResponseEntity<TaskDto> response = restTemplate.postForEntity("/api/tasks", taskDto, TaskDto.class);
+    TaskResponseDto createdDto = new TaskResponseDto(1L, "New Task", "Description", false,
+      LocalDateTime.now(), null, Priority.HIGH, new HashSet<>());
+    when(taskService.create(any())).thenReturn(createdDto);
+
+    ResponseEntity<TaskResponseDto> response =
+      restTemplate.postForEntity("/api/tasks", createDto, TaskResponseDto.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    verify(taskService, times(1)).save(any());
+    verify(taskService, times(1)).create(any());
   }
 
   @Test
@@ -102,24 +125,34 @@ public class TaskControllerTest {
 
   @Test
   public void testUpdate_Positive() {
-    TaskDto taskDto = new TaskDto(1L, "Updated", "Desc", true);
-    when(taskService.save(any())).thenReturn(new com.mipt.ailanakaramchakova.model.Task(1L, "Updated", "Desc", true));
+    TaskUpdateDto updateDto = new TaskUpdateDto();
+    updateDto.setTitle("Updated Task");
+    updateDto.setDescription("New Description");
+    updateDto.setCompleted(true);
+    updateDto.setPriority(Priority.LOW);
+    updateDto.setTags(new HashSet<>());
 
-    HttpEntity<TaskDto> entity = new HttpEntity<>(taskDto);
-    ResponseEntity<TaskDto> response = restTemplate.exchange(
-      "/api/tasks/1", HttpMethod.PUT, entity, TaskDto.class);
+    TaskResponseDto updatedDto = new TaskResponseDto(1L, "Updated Task", "New Description", true,
+      LocalDateTime.now(), null, Priority.LOW, new HashSet<>());
+    when(taskService.update(anyLong(), any())).thenReturn(updatedDto);
+
+    HttpEntity<TaskUpdateDto> entity = new HttpEntity<>(updateDto);
+    ResponseEntity<TaskResponseDto> response = restTemplate.exchange(
+      "/api/tasks/1", HttpMethod.PUT, entity, TaskResponseDto.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   @Test
   public void testUpdate_Negative() {
-    TaskDto taskDto = new TaskDto(1L, "Updated", "Desc", true);
-    when(taskService.save(any())).thenThrow(new RuntimeException("Error"));
+    TaskUpdateDto updateDto = new TaskUpdateDto();
+    updateDto.setTitle("Updated Task");
 
-    HttpEntity<TaskDto> entity = new HttpEntity<>(taskDto);
+    when(taskService.update(anyLong(), any())).thenThrow(new RuntimeException("Error"));
 
-    ResponseEntity<TaskDto> response = restTemplate.exchange(
-      "/api/tasks/1", HttpMethod.PUT, entity, TaskDto.class);
+    HttpEntity<TaskUpdateDto> entity = new HttpEntity<>(updateDto);
+
+    ResponseEntity<TaskResponseDto> response = restTemplate.exchange(
+      "/api/tasks/1", HttpMethod.PUT, entity, TaskResponseDto.class);
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
   }

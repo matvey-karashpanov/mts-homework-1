@@ -1,14 +1,20 @@
 package com.mipt.ailanakaramchakova.service;
 
 import com.mipt.ailanakaramchakova.config.PrototypeScopedBean;
+import com.mipt.ailanakaramchakova.dto.TaskCreateDto;
+import com.mipt.ailanakaramchakova.dto.TaskResponseDto;
+import com.mipt.ailanakaramchakova.dto.TaskUpdateDto;
+import com.mipt.ailanakaramchakova.exception.TaskNotFoundException;
+import com.mipt.ailanakaramchakova.mapper.TaskMapper;
 import com.mipt.ailanakaramchakova.model.Task;
 import com.mipt.ailanakaramchakova.repository.TaskRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +31,7 @@ public class TaskService {
 
   private final TaskRepository repository;
   private final PrototypeScopedBean prototypeBean;
+  private final TaskMapper taskMapper;
   private final Map<Long, Task> taskCache = new HashMap<>();
 
   @Value("${app.name}")
@@ -33,19 +40,16 @@ public class TaskService {
   @Value("${app.version}")
   private String appVersion;
 
-  public TaskService(TaskRepository repository, PrototypeScopedBean prototypeBean) {
+  public TaskService(TaskRepository repository,
+    PrototypeScopedBean prototypeBean,
+    TaskMapper taskMapper) {
     this.repository = repository;
     this.prototypeBean = prototypeBean;
+    this.taskMapper = taskMapper;
   }
 
   @PostConstruct
   public void init() {
-    Task task1 = new Task(1L, "Task 1", "Description 1", false);
-    Task task2 = new Task(2L, "Task 2", "Description 2", true);
-
-    taskCache.put(task1.getId(), task1);
-    taskCache.put(task2.getId(), task2);
-
     logger.info("Cache initialized for {} v{}", appName, appVersion);
     logger.info("Prototype ID: {}", prototypeBean.getUuid());
   }
@@ -55,19 +59,37 @@ public class TaskService {
     logger.info("Destroying service. Cache size: {}", taskCache.size());
   }
 
-  public List<Task> findAll() {
-    return repository.findAll();
+  public List<TaskResponseDto> findAll() {
+    List<Task> tasks = repository.findAll();
+    return tasks.stream()
+      .map(taskMapper::toResponseDto)
+      .collect(Collectors.toList());
   }
 
-  public Optional<Task> findById(Long id) {
-    return repository.findById(id);
+  public TaskResponseDto findById(Long id) {
+    Task task = repository.findById(id)
+      .orElseThrow(() -> new TaskNotFoundException(id));
+    return taskMapper.toResponseDto(task);
   }
 
-  public Task save(Task task) {
-    return repository.save(task);
+  public TaskResponseDto create(TaskCreateDto dto) {
+    Task task = taskMapper.toEntity(dto);
+    task.setCreatedAt(LocalDateTime.now());
+    Task savedTask = repository.save(task);
+    return taskMapper.toResponseDto(savedTask);
+  }
+
+  public TaskResponseDto update(Long id, TaskUpdateDto dto) {
+    Task task = repository.findById(id)
+      .orElseThrow(() -> new TaskNotFoundException(id));
+    taskMapper.updateEntityFromDto(dto, task);
+    Task updatedTask = repository.save(task);
+    return taskMapper.toResponseDto(updatedTask);
   }
 
   public void deleteById(Long id) {
-    repository.deleteById(id);
+    if (!repository.deleteById(id)) {
+      throw new TaskNotFoundException(id);
+    }
   }
 }

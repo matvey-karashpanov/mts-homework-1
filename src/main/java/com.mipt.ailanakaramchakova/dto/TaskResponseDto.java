@@ -1,15 +1,14 @@
-package com.mipt.ailanakaramchakova.model;
+package com.mipt.ailanakaramchakova.dto;
 
+import com.mipt.ailanakaramchakova.model.Priority;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a task in the todo list.
- * Contains id, title, description, completed status, dates, priority and tags.
+ * DTO for task response.
  */
-public class Task {
+public class TaskResponseDto {
 
   private Long id;
   private String title;
@@ -20,21 +19,10 @@ public class Task {
   private Priority priority;
   private Set<String> tags;
 
-  public Task() {
-    this.tags = new HashSet<>();
-    this.tags = new HashSet<>();
+  public TaskResponseDto() {
   }
 
-  public Task(Long id, String title, String description, boolean completed) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.completed = completed;
-    this.tags = new HashSet<>();
-    this.createdAt = LocalDateTime.now();
-  }
-
-  public Task(Long id, String title, String description, boolean completed,
+  public TaskResponseDto(Long id, String title, String description, boolean completed,
     LocalDateTime createdAt, LocalDate dueDate, Priority priority, Set<String> tags) {
     this.id = id;
     this.title = title;
@@ -43,7 +31,7 @@ public class Task {
     this.createdAt = createdAt;
     this.dueDate = dueDate;
     this.priority = priority;
-    this.tags = tags != null ? tags : new HashSet<>();
+    this.tags = tags;
   }
 
   public Long getId() {
@@ -108,38 +96,5 @@ public class Task {
 
   public void setTags(Set<String> tags) {
     this.tags = tags;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Task task = (Task) o;
-    if (id == null && task.id == null) {
-      return true;
-    }
-    if (id == null || task.id == null) {
-      return false;
-    }
-    return id.equals(task.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return id != null ? id.hashCode() : 0;
-  }
-
-  @Override
-  public String toString() {
-    return "Task{" +
-      "id=" + id +
-      ", title='" + title + '\'' +
-      ", completed=" + completed +
-      ", priority=" + priority +
-      '}';
   }
 }
