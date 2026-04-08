@@ -1,46 +1,17 @@
 package com.mipt.ailanakaramchakova.repository;
 
 import com.mipt.ailanakaramchakova.model.TaskAttachment;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository for task attachments.
+ * Repository for task attachment CRUD operations with JPA.
  */
 @Repository
-public class TaskAttachmentRepository {
+public interface TaskAttachmentRepository extends JpaRepository<TaskAttachment, Long> {
 
-  private final Map<Long, TaskAttachment> storage = new ConcurrentHashMap<>();
-  private final AtomicLong currentId = new AtomicLong(1L);
+  List<TaskAttachment> findByTaskId(Long taskId);
 
-  public TaskAttachment save(TaskAttachment attachment) {
-    if (attachment.getId() == null) {
-      attachment.setId(currentId.getAndIncrement());
-    }
-    storage.put(attachment.getId(), attachment);
-    return attachment;
-  }
-
-  public Optional<TaskAttachment> findById(Long id) {
-    return Optional.ofNullable(storage.get(id));
-  }
-
-  public List<TaskAttachment> findByTaskId(Long taskId) {
-    List<TaskAttachment> result = new ArrayList<>();
-    for (TaskAttachment attachment : storage.values()) {
-      if (attachment.getTaskId().equals(taskId)) {
-        result.add(attachment);
-      }
-    }
-    return result;
-  }
-
-  public boolean deleteById(Long id) {
-    return storage.remove(id) != null;
-  }
+  boolean existsByTaskId(Long taskId);
 }
