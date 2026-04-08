@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.when;
  * operations.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class AttachmentControllerTest {
 
   @Autowired

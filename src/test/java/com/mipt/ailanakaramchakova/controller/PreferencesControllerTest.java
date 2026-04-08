@@ -13,11 +13,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Tests for PreferencesController endpoints. Covers cookie-based user preferences functionality.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class PreferencesControllerTest {
 
   @Autowired
