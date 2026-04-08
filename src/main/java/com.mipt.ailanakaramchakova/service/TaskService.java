@@ -10,6 +10,7 @@ import com.mipt.ailanakaramchakova.model.Task;
 import com.mipt.ailanakaramchakova.repository.TaskRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for managing tasks.
@@ -66,6 +69,13 @@ public class TaskService {
       .collect(Collectors.toList());
   }
 
+  public List<TaskResponseDto> findAllWithAttachments() {
+    List<Task> tasks = repository.findAll();
+    return tasks.stream()
+      .map(taskMapper::toResponseDto)
+      .collect(Collectors.toList());
+  }
+
   public TaskResponseDto findById(Long id) {
     Task task = repository.findById(id)
       .orElseThrow(() -> new TaskNotFoundException(id));
@@ -88,8 +98,19 @@ public class TaskService {
   }
 
   public void deleteById(Long id) {
-    if (!repository.deleteById(id)) {
+    if (!repository.existsById(id)) {
       throw new TaskNotFoundException(id);
+    }
+    repository.deleteById(id);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+  public void bulkCompleteTasks(List<Long> ids) {
+    for (Long id : ids) {
+      Task task = repository.findById(id)
+        .orElseThrow(() -> new TaskNotFoundException(id));
+      task.setCompleted(true);
+      repository.save(task);
     }
   }
 }
