@@ -1,0 +1,29 @@
+security:
+  jwt:
+    secret: "CHANGE_ME_SECRET_KEY_MUST_BE_32_BYTES_LONG_OR_MORE"
+    issuer: "demo-app"
+    access-ttl-seconds: 900
+  password:
+    pepper: "my-application-pepper-secret"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalApi:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+  ratelimiter:
+    instances:
+      externalApi:
+        limitForPeriod: 5
+        limitRefreshPeriod: 10s
+        timeoutDuration: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
