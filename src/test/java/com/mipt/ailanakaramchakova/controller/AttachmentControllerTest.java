@@ -2,6 +2,7 @@ package com.mipt.ailanakaramchakova.controller;
 
 import com.mipt.ailanakaramchakova.dto.AttachmentResponseDto;
 import com.mipt.ailanakaramchakova.exception.TaskNotFoundException;
+import com.mipt.ailanakaramchakova.model.Task;
 import com.mipt.ailanakaramchakova.model.TaskAttachment;
 import com.mipt.ailanakaramchakova.service.AttachmentService;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,10 +40,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for AttachmentController endpoints.
- * Covers file upload, download, delete and list operations.
+ * Tests for AttachmentController endpoints. Covers file upload, download, delete and list
+ * operations.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class AttachmentControllerTest {
 
   @Autowired
@@ -59,10 +62,10 @@ public class AttachmentControllerTest {
       "test content".getBytes()
     );
 
-    TaskAttachment attachment = new TaskAttachment(
-      1L, 1L, "test.txt", "uuid_test.txt",
-      "text/plain", 12L, LocalDateTime.now()
-    );
+    Task task = new Task(1L, "Test Task", "Description", false);
+
+    TaskAttachment attachment = new TaskAttachment(1L, task, "test.txt", "uuid_test.txt",
+      "text/plain", 12L, LocalDateTime.now());
     when(attachmentService.storeAttachment(anyLong(), any(MultipartFile.class)))
       .thenReturn(attachment);
 
@@ -121,10 +124,10 @@ public class AttachmentControllerTest {
 
   @Test
   public void testDownloadAttachment_Positive() throws Exception {
-    TaskAttachment attachment = new TaskAttachment(
-      1L, 1L, "test.txt", "uuid_test.txt",
-      "text/plain", 12L, LocalDateTime.now()
-    );
+    Task task = new Task(1L, "Test Task", "Description", false);
+
+    TaskAttachment attachment = new TaskAttachment(1L, task, "test.txt", "uuid_test.txt",
+      "text/plain", 12L, LocalDateTime.now());
     when(attachmentService.getAttachment(1L)).thenReturn(attachment);
     when(attachmentService.loadAsResource(1L)).thenReturn(
       new ByteArrayResource("content".getBytes())
@@ -184,11 +187,13 @@ public class AttachmentControllerTest {
 
   @Test
   public void testGetAttachmentsByTaskId_Positive() {
+    Task task = new Task(1L, "Test Task", "Description", false);
+
     List<TaskAttachment> attachments = Arrays.asList(
-      new TaskAttachment(1L, 1L, "file1.txt", "uuid_1.txt", "text/plain", 100L,
+      new TaskAttachment(1L, task, "file1.txt", "uuid_1.txt", "text/plain", 100L,
         LocalDateTime.now()),
-      new TaskAttachment(2L, 1L, "file2.txt", "uuid_2.txt", "text/plain", 200L, LocalDateTime.now())
-    );
+      new TaskAttachment(2L, task, "file2.txt", "uuid_2.txt", "text/plain", 200L,
+        LocalDateTime.now()));
     when(attachmentService.getAttachmentsByTaskId(1L)).thenReturn(attachments);
 
     ResponseEntity<List> response = restTemplate.getForEntity(

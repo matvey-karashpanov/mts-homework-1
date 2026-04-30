@@ -24,12 +24,14 @@ import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Tests for FavoritesController endpoints.
  * Covers session-based favorite tasks functionality.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class FavoritesControllerTest {
 
   @Autowired
