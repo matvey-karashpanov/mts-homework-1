@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,70 +35,70 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Task Management", description = "Operations for managing tasks")
 public class TaskController {
 
-  private final TaskService taskService;
-  private final RequestScopedBean requestScopedBean;
+    private final TaskService taskService;
+    private final RequestScopedBean requestScopedBean;
 
-  @Value("${app.api-version}")
-  private String apiVersion;
+    @Value("${app.api-version}")
+    private String apiVersion;
 
-  public TaskController(TaskService taskService, RequestScopedBean requestScopedBean) {
-    this.taskService = taskService;
-    this.requestScopedBean = requestScopedBean;
-  }
+    public TaskController(TaskService taskService, RequestScopedBean requestScopedBean) {
+        this.taskService = taskService;
+        this.requestScopedBean = requestScopedBean;
+    }
 
-  @GetMapping
-  @Operation(summary = "Get all tasks", description = "Returns a list of all tasks")
-  @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
-  public ResponseEntity<List<TaskResponseDto>> getAll() {
-    List<TaskResponseDto> tasks = taskService.findAll();
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-Total-Count", String.valueOf(tasks.size()));
-    headers.add("X-API-Version", apiVersion);
-    return ResponseEntity.ok().headers(headers).body(tasks);
-  }
+    @GetMapping
+    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks")
+    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
+    public ResponseEntity<List<TaskResponseDto>> getAll() {
+        List<TaskResponseDto> tasks = taskService.findAll();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(tasks.size()));
+        headers.add("X-API-Version", apiVersion);
+        return ResponseEntity.ok().headers(headers).body(tasks);
+    }
 
-  @GetMapping("/{id}")
-  @Operation(summary = "Get task by ID", description = "Returns a single task by ID")
-  @ApiResponse(responseCode = "200", description = "Task found")
-  @ApiResponse(responseCode = "404", description = "Task not found")
-  public ResponseEntity<TaskResponseDto> getById(@PathVariable Long id) {
-    TaskResponseDto task = taskService.findById(id);
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-API-Version", apiVersion);
-    return ResponseEntity.ok().headers(headers).body(task);
-  }
+    @GetMapping("/{id}")
+    @Operation(summary = "Get task by ID", description = "Returns a single task by ID")
+    @ApiResponse(responseCode = "200", description = "Task found")
+    @ApiResponse(responseCode = "404", description = "Task not found")
+    public ResponseEntity<TaskResponseDto> getById(@PathVariable Long id) {
+        TaskResponseDto task = taskService.findById(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-API-Version", apiVersion);
+        return ResponseEntity.ok().headers(headers).body(task);
+    }
 
-  @PostMapping
-  @Operation(summary = "Create new task", description = "Creates a new task")
-  @ApiResponse(responseCode = "201", description = "Task created successfully")
-  @ApiResponse(responseCode = "400", description = "Invalid input")
-  public ResponseEntity<TaskResponseDto> create(
-    @RequestBody @Validated(OnCreate.class) @Valid TaskCreateDto dto) {
-    TaskResponseDto createdTask = taskService.create(dto);
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-API-Version", apiVersion);
-    return ResponseEntity.ok().headers(headers).body(createdTask);
-  }
+    @PostMapping
+    @Operation(summary = "Create new task", description = "Creates a new task")
+    @ApiResponse(responseCode = "201", description = "Task created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid input")
+    public ResponseEntity<TaskResponseDto> create(
+      @RequestBody @Validated(OnCreate.class) @Valid TaskCreateDto dto) {
+        TaskResponseDto createdTask = taskService.create(dto);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-API-Version", apiVersion);
+        return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(createdTask);
+    }
 
-  @PutMapping("/{id}")
-  @Operation(summary = "Update task", description = "Updates an existing task")
-  @ApiResponse(responseCode = "200", description = "Task updated successfully")
-  @ApiResponse(responseCode = "404", description = "Task not found")
-  public ResponseEntity<TaskResponseDto> update(
-    @PathVariable Long id,
-    @RequestBody @Validated(OnUpdate.class) @Valid TaskUpdateDto dto) {
-    TaskResponseDto updatedTask = taskService.update(id, dto);
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-API-Version", apiVersion);
-    return ResponseEntity.ok().headers(headers).body(updatedTask);
-  }
+    @PutMapping("/{id}")
+    @Operation(summary = "Update task", description = "Updates an existing task")
+    @ApiResponse(responseCode = "200", description = "Task updated successfully")
+    @ApiResponse(responseCode = "404", description = "Task not found")
+    public ResponseEntity<TaskResponseDto> update(
+      @PathVariable Long id,
+      @RequestBody @Validated(OnUpdate.class) @Valid TaskUpdateDto dto) {
+        TaskResponseDto updatedTask = taskService.update(id, dto);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-API-Version", apiVersion);
+        return ResponseEntity.ok().headers(headers).body(updatedTask);
+    }
 
-  @DeleteMapping("/{id}")
-  @Operation(summary = "Delete task", description = "Deletes a task by ID")
-  @ApiResponse(responseCode = "204", description = "Task deleted successfully")
-  @ApiResponse(responseCode = "404", description = "Task not found")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
-    taskService.deleteById(id);
-    return ResponseEntity.noContent().build();
-  }
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete task", description = "Deletes a task by ID")
+    @ApiResponse(responseCode = "204", description = "Task deleted successfully")
+    @ApiResponse(responseCode = "404", description = "Task not found")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        taskService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
