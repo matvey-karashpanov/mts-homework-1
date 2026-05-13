@@ -22,46 +22,45 @@ import java.util.Arrays;
 @ActiveProfiles("test")
 public class TaskServiceIntegrationTest {
 
-  @Autowired
-  private TaskService taskService;
+    @Autowired
+    private TaskService taskService;
 
-  @Autowired
-  private TaskRepository taskRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
-  @Test
-  public void testBulkCompleteTasks_Success() {
-    Task task1 = new Task(null, "Task 1", "Desc", false);
-    task1.setPriority(Priority.MEDIUM);
-    Task task2 = new Task(null, "Task 2", "Desc", false);
-    task2.setPriority(Priority.MEDIUM);
+    @Test
+    public void testBulkCompleteTasks_Success() {
+        Task task1 = new Task(null, "Task 1", "Desc", false);
+        task1.setPriority(Priority.MEDIUM);
+        Task task2 = new Task(null, "Task 2", "Desc", false);
+        task2.setPriority(Priority.MEDIUM);
 
-    task1 = taskRepository.save(task1);
-    task2 = taskRepository.save(task2);
+        task1 = taskRepository.save(task1);
+        task2 = taskRepository.save(task2);
 
-    taskService.bulkCompleteTasks(Arrays.asList(task1.getId(), task2.getId()));
+        taskService.bulkCompleteTasks(Arrays.asList(task1.getId(), task2.getId()));
 
-    Task updated1 = taskRepository.findById(task1.getId()).orElseThrow();
-    Task updated2 = taskRepository.findById(task2.getId()).orElseThrow();
+        Task updated1 = taskRepository.findById(task1.getId()).orElseThrow();
+        Task updated2 = taskRepository.findById(task2.getId()).orElseThrow();
 
-    assertTrue(updated1.isCompleted());
-    assertTrue(updated2.isCompleted());
-  }
+        assertTrue(updated1.isCompleted());
+        assertTrue(updated2.isCompleted());
+    }
 
-  @Test
-  @Transactional
-  public void testBulkCompleteTasks_RollbackOnNotFound() {
-    Task task1 = new Task(null, "Task 1", "Desc", false);
-    task1.setPriority(Priority.MEDIUM);
+    @Test
+    @Transactional
+    public void testBulkCompleteTasks_RollbackOnNotFound() {
+        Task task1 = new Task(null, "Task 1", "Desc", false);
+        task1.setPriority(Priority.MEDIUM);
+        Task savedTask1 = taskRepository.save(task1);
 
-    Task savedTask1 = taskRepository.save(task1);
+        Long invalidId = 999L;
 
-    Long invalidId = 999L;
+        assertThrows(TaskNotFoundException.class, () -> {
+            taskService.bulkCompleteTasks(Arrays.asList(savedTask1.getId(), invalidId));
+        });
 
-    assertThrows(TaskNotFoundException.class, () -> {
-      taskService.bulkCompleteTasks(Arrays.asList(savedTask1.getId(), invalidId));
-    });
-
-    Task notUpdated = taskRepository.findById(savedTask1.getId()).orElseThrow();
-    assertFalse(notUpdated.isCompleted());
-  }
+        Task notUpdated = taskRepository.findById(savedTask1.getId()).orElseThrow();
+        assertFalse(notUpdated.isCompleted());
+    }
 }
